@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>d3.js v5 Simple Liner Graph</title>
+  <style>
+  .axis { font: 14px sans-serif; }
+  .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2px;
+  }
+  </style>
+</head>
+<body>
+    <script>
+        document.write(getParam('key'));
+    /**
+     * Get the URL parameter value
+     *
+     * @param  name {string} パラメータのキー文字列
+     * @return  url {url} 対象のURL文字列（任意）
+     */
+    function getParam(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    </script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+var dataset = [
+{date:"2020-4-1", value: 97.4},
+{date:"2020-4-8", value: 105.7},
+{date:"2020-4-15", value: 112.0},
+{date:"2020-4-22", value: 124.7},
+{date:"2020-4-29", value: 135.2},
+{date:"2020-5-6", value: 104.7},
+{date:"2020-5-13", value: 91.0},
+{date:"2020-5-20", value: 99.2},
+{date:"2020-5-27", value: 113.6},
+{date:"2020-6-3", value: 118.3},
+{date:"2020-6-10", value: 114.4},
+{date:"2020-6-17", value: 94.2},
+{date:"2020-6-24", value: 81.7},
+{date:"2020-7-1", value: 73.7},
+{date:"2020-7-8", value: 85.2},
+{date:"2020-7-15", value: 100.0},
+{date:"2020-7-22", value: 100.8},
+{date:"2020-7-29", value: 86.5},
+{date:"2020-8-5", value: 78.3},
+{date:"2020-8-12", value: 72.1},
+{date:"2020-8-19", value: 92.5},
+{date:"2020-8-26", value: 96.4},
+{date:"2020-9-2", value: 81.7},
+{date:"2020-9-9", value: 82.4},
+{date:"2020-9-16", value: 90.5},
+{date:"2020-9-23", value: 102.0},
+{date:"2020-9-30", value: 99.8},
+{date:"2020-10-7", value: 109.9},
+{date:"2020-10-14", value: 102.4},
+{date:"2020-10-21", value: 88.1},
+{date:"2020-10-28", value: 105.0},
+{date:"2020-11-4", value: 113.7},
+{date:"2020-11-11", value: 128.8},
+{date:"2020-11-18", value: 131.4},
+{date:"2020-11-25", value: 143.1},
+{date:"2020-12-2", value: 128.1},
+{date:"2020-12-9", value: 123.3},
+{date:"2020-12-16", value: 125.3},
+{date:"2020-12-23", value: 133.2},
+{date:"2020-12-30", value: 109.3},
+{date:"2021-1-6", value: 89.1},
+{date:"2021-1-13", value: 82.6},
+{date:"2021-1-20", value: 76.2},
+{date:"2021-1-27", value: 75.4},
+{date:"2021-2-3", value: 94.0},
+{date:"2021-2-10", value: 103.2},
+{date:"2021-2-17", value: 92.0},
+{date:"2021-2-24", value: 94.1},
+{date:"2021-3-3", value: 107.5},
+{date:"2021-3-10", value: 107.6},
+{date:"2021-3-17", value: 89.6},
+{date:"2021-3-24", value: 91.5},
+{date:"2021-3-31", value: 95.6},
+{date:"2021-4-7", value: 90.8},
+{date:"2021-4-14", value: 88.2},
+{date:"2021-4-21", value: 88.6},
+{date:"2021-4-28", value: 97.1},
+{date:"2021-5-5", value: 89.1},
+{date:"2021-5-12", value: 87.6},
+{date:"2021-5-19", value: 102.7},
+{date:"2021-5-26", value: 85.1},
+{date:"2021-6-2", value: 79.0},
+{date:"2021-6-9", value: 87.9},
+{date:"2021-6-16", value: 92.8},
+{date:"2021-6-23", value: 78.9},
+{date:"2021-6-30", value: 83.3},
+{date:"2021-7-7", value: 88.3},
+{date:"2021-7-14", value: 81.4},
+{date:"2021-7-21", value: 96.9},
+{date:"2021-7-28", value: 112.7},
+{date:"2021-8-4", value: 116.0},
+{date:"2021-8-11", value: 112.3},
+{date:"2021-8-18", value: 97.6},
+{date:"2021-8-25", value: 83.7},
+{date:"2021-9-1", value: 89.1},
+{date:"2021-9-8", value: 104.0},
+{date:"2021-9-15", value: 103.7},
+{date:"2021-9-22", value: 112.2},
+{date:"2021-9-29", value: 101.2},
+{date:"2021-10-6", value: 86.2},
+{date:"2021-10-13", value: 89.9},
+{date:"2021-10-20", value: 106.5},
+{date:"2021-10-27", value: 90.2},
+{date:"2021-11-3", value: 84.3},
+{date:"2021-11-10", value: 93.3},
+{date:"2021-11-17", value: 99.6},
+{date:"2021-11-24", value: 111.5},
+{date:"2021-12-1", value: 89.4},
+{date:"2021-12-8", value: 82.0},
+{date:"2021-12-15", value: 75.8},
+{date:"2021-12-22", value: 73.0},
+{date:"2021-12-29", value: 74.1},
+{date:"2022-1-5", value: 78.1},
+  ];
+  var width = 400;
+  var height = 400;
+
+  var svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
+  var padding = 30;
+
+  var timeparser = d3.timeParse("%Y-%m-%d");
+  dataset = dataset.map(function(d){
+    return  { date: timeparser(d.date), value:d.value } ;
+  });
+
+  var xScale = d3.scaleTime()
+    .domain([d3.min(dataset, function(d){return d.date;}), d3.max(dataset, function(d){return d.date;})])
+    .range([padding, width - padding]);
+
+  var yScale = d3.scaleLinear()
+    .domain([0, d3.max(dataset, function(d){return d.value;})])
+    .range([height - padding, padding]);
+
+  var axisx = d3.axisBottom(xScale)
+  .ticks(10)
+  .tickFormat(d3.timeFormat("%Y-%m-%d"));
+  var axisy = d3.axisLeft(yScale);
+
+  var line = d3.line()
+      .x(function(d) { return xScale(d.date); })
+      .y(function(d) { return yScale(d.value); });
+
+  svg.append("g")
+    .attr("transform", "translate(" + 0 + "," + (height - padding) + ")")
+    .call(axisx);
+
+  svg.append("g")
+    .attr("transform", "translate(" + padding + "," + 0 + ")")
+    .call(axisy);
+
+  svg.append("path")
+    .datum(dataset)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", 1.5)
+    .attr("d", line);
+  </script>
+</body>
+</html>
+
